@@ -19,8 +19,14 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Iniciar servidor
-app.listen(config.PORT, () => {
-    console.log(`Servidor rodando na porta ${config.PORT}`);
-    console.log(`Acesse: http://localhost:${config.PORT}`);
-});
+// Para Vercel (exportar o app)
+if (process.env.VERCEL) {
+    module.exports = app;
+} else {
+    // Para desenvolvimento local
+    const PORT = config.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Servidor rodando na porta ${PORT}`);
+        console.log(`Acesse: http://localhost:${PORT}`);
+    });
+}
