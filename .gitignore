@@ -1,0 +1,51 @@
+# Dependências
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos de ambiente (IMPORTANTE - não subir chaves)
+.env
+credentials.json
+
+# Logs
+logs
+*.log
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Build outputs
+dist/
+build/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python (para a pasta script-python)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Excluir pasta script-python e arquivos de prompt
+script-python/
+prompt1.txt
+prompt2.txt
