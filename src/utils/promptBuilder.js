@@ -44,4 +44,15 @@ OBRIGATÓRIO:
 `;
 }
 
-module.exports = { buildEducationalPrompt };
+function buildCombinedPrompt(rowData, customPrompt) {
+    const basePrompt = buildEducationalPrompt(rowData);
+    
+    return `${basePrompt}
+
+🎯 FOCO ESPECIAL E PRIORIDADE:
+${customPrompt}
+
+IMPORTANTE: Mantenha todas as regras e configurações acima, mas dê prioridade especial ao foco descrito. Combine harmoniosamente o conceito educacional base com a ideia personalizada, garantindo que ambos sejam representados visualmente na ilustração final.`;
+}
+
+module.exports = { buildEducationalPrompt, buildCombinedPrompt };

@@ -1,5 +1,5 @@
 const config = require('../config/environment');
-const { buildEducationalPrompt } = require('../utils/promptBuilder');
+const { buildEducationalPrompt, buildCombinedPrompt } = require('../utils/promptBuilder');
 const cloudinaryService = require('./cloudinaryService');
 
 async function generateImageWithGemini(rowData, customPrompt = null) {
@@ -7,9 +7,12 @@ async function generateImageWithGemini(rowData, customPrompt = null) {
         if (!config.GEMINI.API_KEY) {
             throw new Error('GEMINI_API_KEY não encontrada nas variáveis de ambiente');
         }
-        const prompt = customPrompt || buildEducationalPrompt(rowData);
+
+        const prompt = customPrompt ? 
+            buildCombinedPrompt(rowData, customPrompt) : 
+            buildEducationalPrompt(rowData);
         
-        console.log(`Gerando imagem com prompt: ${customPrompt ? 'personalizado' : 'automático'}`);
+        console.log(`Gerando imagem com prompt: ${customPrompt ? 'combinado (base + personalizado)' : 'automático'}`);
         console.log(`Adaptando para faixa etária baseada no ano: ${rowData.ano}`);
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${config.GEMINI.API_KEY}`;

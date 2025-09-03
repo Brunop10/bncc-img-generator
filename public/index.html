@@ -23,7 +23,7 @@
                         <div class="inline-navigation">
                             <button class="btn btn-primary btn-compact" onclick="previousRow()" id="prevBtn">⬅️ Anterior</button>
                             <div class="progress-compact">
-                                <span>Linha <span id="currentRow">0</span> de <span id="totalRows">0</span></span>
+                                <span><span id="currentRow">0</span> de <span id="totalRows">0</span></span>
                                 <div class="progress-bar" style="width: 120px; height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden; margin: 0 10px;">
                                     <div id="progressFill" style="height: 100%; background: #007bff; width: 0%; transition: width 0.3s ease;"></div>
                                 </div>
@@ -31,11 +31,12 @@
                             <button class="btn btn-primary btn-compact" onclick="nextRow()" id="nextBtn">Próximo ➡️</button>
                         </div>
                     </div>
+                    <p><strong>Etapa:</strong> <span id="step"></span></p>
+                    <p><strong>Eixo:</strong> <span id="axes"></span></p>
                     <p><strong>Descrição:</strong> <span id="description"></span></p>
                     <p><strong>Habilidade Superior:</strong> <span id="skill"></span></p>
                     <p><strong>Explicação:</strong> <span id="explanation"></span></p>
                     <p><strong>Exemplos:</strong> <span id="examples"></span></p>
-                    <p><strong>Ano:</strong> <span id="year"></span></p>
                 </div>
             </div>
             
@@ -56,7 +57,8 @@
                             <div class="image-container" id="currentImageContainer">
                                 <div id="noCurrentImage" class="no-image-message">
                                     <div class="no-image-icon">🖼️</div>
-                                    <p>Nenhuma imagem atual disponível</p>
+                                    <p>Não existe ainda uma imagem para essa atividade.</p>
+                                    <br><p>(Clique em GERAR IMAGEM na seção ao lado)</p>
                                 </div>
                                 <div id="existingImageSection" style="display: none;">
                                     <img id="existingImage" src="" alt="Imagem atual" class="clickable-image" onclick="openImagePopup(this.src, 'Imagem Atual')">
@@ -79,11 +81,11 @@
                                     <span class="toggle-text">✏️ Prompt Personalizado (opcional)</span>
                                 </div>
                                 <div class="prompt-content" id="promptContent" style="display: none;">
-                                    <textarea id="customPrompt1" placeholder="Digite aqui seu próprio prompt para gerar a imagem... (deixe vazio para usar o prompt automático)"></textarea>
+                                    <textarea id="customPrompt1" placeholder="Digite aqui ideias adicionais para a imagem (ex: 'com foco em animais', 'estilo cartoon', 'ambiente ao ar livre')... Isso será combinado com as descrições educacionais automáticas."></textarea>
                                     <div class="prompt-actions">
                                         <button class="btn btn-secondary btn-small" onclick="clearCustomPrompt()">🗑️ Limpar</button>
                                     </div>
-                                    <small>💡 Dica: Se não estiver satisfeito com as imagens automáticas, digite seu próprio prompt aqui</small>
+                                    <small>💡 Dica: O prompt personalizado será **adicionado** às descrições automáticas, dando foco especial à sua ideia mas preservando todo o conteúdo educacional</small>
                                 </div>
                             </div>
                             

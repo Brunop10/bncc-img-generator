@@ -43,6 +43,8 @@ async function loadSheetData() {
             habilidade_superior: getColumnIndex('habilidade_superior'),
             explicacao: getColumnIndex('explicacao'),
             exemplos: getColumnIndex('exemplos'),
+            etapa: getColumnIndex('etapa'),
+            eixo: getColumnIndex('eixo'),
             img_url_1: getColumnIndex('img_url_1'),
         };
         
@@ -55,6 +57,8 @@ async function loadSheetData() {
                 habilidade_superior: columnIndices.habilidade_superior !== null ? (row[columnIndices.habilidade_superior] || '') : '',
                 explicacao: columnIndices.explicacao !== null ? (row[columnIndices.explicacao] || '') : '',
                 exemplos: columnIndices.exemplos !== null ? (row[columnIndices.exemplos] || '') : '',
+                etapa: columnIndices.etapa !== null ? (row[columnIndices.etapa] || '') : '',
+                eixo: columnIndices.eixo !== null ? (row[columnIndices.eixo] || '') : '',
                 img_url_1: columnIndices.img_url_1 !== null ? (row[columnIndices.img_url_1] || '') : ''
             };
             data.push(rowData);

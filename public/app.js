@@ -64,13 +64,12 @@ async function loadSheetData() {
 }
 
 function updateInterface(rowData) {
-    if (!rowData) return;
-
     document.getElementById('description').textContent = rowData.descr_objetivo_ou_habilidade || 'N/A';
     document.getElementById('skill').textContent = rowData.habilidade_superior || 'N/A';
     document.getElementById('explanation').textContent = rowData.explicacao || 'N/A';
     document.getElementById('examples').textContent = rowData.exemplos || 'N/A';
-    document.getElementById('year').textContent = rowData.ano || 'N/A';
+    document.getElementById('step').textContent = rowData.etapa || 'N/A';
+    document.getElementById('axes').textContent = rowData.eixo || 'N/A';
     
     const existingImageSection = document.getElementById('existingImageSection');
     const existingImage = document.getElementById('existingImage');
@@ -89,7 +88,6 @@ function updateInterface(rowData) {
             existingImage.src = rowData.img_url_1;
             existingImage.style.display = 'block';
             existingImage.onerror = function() {
-                // Se a imagem não carregar, mostrar placeholder
                 this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbSBuw6NvIGVuY29udHJhZGE8L3RleHQ+PC9zdmc+';
                 this.style.opacity = '0.5';
             };
@@ -206,15 +204,27 @@ async function generateImage(imageNumber) {
     const generateBtn = document.getElementById(`generateBtn${imageNumber}`);
     const imageStatus = document.getElementById(`imageStatus${imageNumber}`);
     const customPromptField = document.getElementById(`customPrompt${imageNumber}`);
+    const imageContainer = document.getElementById('newImageContainer');
     
-    if (!generateBtn || !imageStatus) {
-        console.error('Elementos não encontrados:', { generateBtn, imageStatus });
+    if (!generateBtn || !imageStatus || !imageContainer) {
+        console.error('Elementos não encontrados:', { generateBtn, imageStatus, imageContainer });
         return;
     }
     
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'image-loading-overlay';
+    loadingOverlay.innerHTML = `
+        <div class="spinner"></div>
+        <div class="spinner-text">Gerando imagem...</div>
+    `;
+    
     generateBtn.disabled = true;
     generateBtn.textContent = '⏳ Gerando...';
-    imageStatus.textContent = 'Gerando imagem...';
+    
+    imageContainer.appendChild(loadingOverlay);
+
+    imageStatus.textContent = '';
+    imageStatus.className = 'image-status-external';
     
     try {
         const rowData = sheetData[currentRowIndex];
@@ -245,7 +255,7 @@ async function generateImage(imageNumber) {
         }
         
         const result = await response.json();
-        console.log('Resposta recebida:', result); // Debug
+        console.log('Resposta recebida:', result);
         
         if (result.success) {
             const imagePreview = document.getElementById(`imagePreview${imageNumber}`);
@@ -253,6 +263,7 @@ async function generateImage(imageNumber) {
             imagePreview.src = result.imageUrl;
             imagePreview.style.display = 'block';
             imageStatus.textContent = customPrompt ? 'Imagem gerada com prompt personalizado!' : 'Imagem gerada com sucesso!';
+            imageStatus.className = 'image-status-external success';
             
             if (imagePreviewActions) {
                 imagePreviewActions.style.display = 'block';
@@ -266,6 +277,7 @@ async function generateImage(imageNumber) {
             if (rejectBtn) rejectBtn.disabled = false;
         } else {
             imageStatus.textContent = `Erro: ${result.error}`;
+            imageStatus.className = 'image-status-external error';
             if (result.error.includes('quota')) {
                 const quotaError = document.getElementById('quotaError');
                 if (quotaError) quotaError.style.display = 'block';
@@ -274,7 +286,12 @@ async function generateImage(imageNumber) {
     } catch (error) {
         console.error('Erro ao gerar imagem:', error);
         imageStatus.textContent = `Erro ao gerar imagem: ${error.message}`;
+        imageStatus.className = 'image-status-external error';
     } finally {
+        if (loadingOverlay && loadingOverlay.parentNode) {
+            loadingOverlay.parentNode.removeChild(loadingOverlay);
+        }
+        
         generateBtn.disabled = false;
         generateBtn.textContent = '🎨 Gerar';
     }
