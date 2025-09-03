@@ -1,9 +1,6 @@
 const cloudinary = require('../config/cloudinary');
 const config = require('../config/environment');
 
-/**
- * Faz upload de imagem base64 para o Cloudinary
- */
 async function uploadBase64Image(base64Data) {
     try {
         const result = await cloudinary.uploader.upload(
@@ -23,9 +20,6 @@ async function uploadBase64Image(base64Data) {
     }
 }
 
-/**
- * Salva imagem por URL no Cloudinary
- */
 async function saveImageByUrl(imageUrl) {
     try {
         const result = await cloudinary.uploader.upload(imageUrl, {

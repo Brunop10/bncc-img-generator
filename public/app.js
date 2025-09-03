@@ -1,17 +1,7 @@
-// Configurações globais
-const CONFIG = {
-    GOOGLE_SHEETS_API_KEY: 'SUA_API_KEY_AQUI',
-    GEMINI_API_KEY: 'SUA_GEMINI_API_KEY_AQUI',
-    CLOUDINARY_CLOUD_NAME: 'SEU_CLOUD_NAME_AQUI',
-    CLOUDINARY_UPLOAD_PRESET: 'SEU_UPLOAD_PRESET_AQUI'
-};
-
-// Variáveis globais
 let sheetData = [];
 let currentRowIndex = -1;
 let totalRows = 0;
 
-// Estado da aplicação
 let appState = {
     currentRowData: null,
     totalPending: 0,
@@ -19,7 +9,6 @@ let appState = {
     quotaExceeded: false
 };
 
-// Função para mostrar status
 function showStatus(message, type = 'info') {
     const statusDiv = document.getElementById('status');
     statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
@@ -31,7 +20,6 @@ function showStatus(message, type = 'info') {
     }
 }
 
-// Função para limpar prompt personalizado
 function clearCustomPrompt() {
     const customPromptField = document.getElementById('customPrompt1');
     if (customPromptField) {
@@ -40,7 +28,6 @@ function clearCustomPrompt() {
     }
 }
 
-// Função para carregar dados da planilha
 async function loadSheetData() {
     showStatus('📊 Carregando dados da planilha "Habilidades"...', 'info');
     
@@ -62,12 +49,10 @@ async function loadSheetData() {
             return;
         }
         
-        // Armazenar todos os dados e configurar navegação
         sheetData = result.allData;
         totalRows = result.totalRows || result.allData.length;
         currentRowIndex = result.currentIndex || 0;
         
-        // Atualizar interface com os dados carregados
         updateInterface(sheetData[currentRowIndex]);
         updateNavigation();
         showStatus(`✅ Dados carregados! Linha ${currentRowIndex + 1} de ${totalRows} (primeira sem imagem)`, 'success');
@@ -78,31 +63,31 @@ async function loadSheetData() {
     }
 }
 
-// Função para atualizar interface
 function updateInterface(rowData) {
     if (!rowData) return;
-    
-    // Atualizar informações da linha
+
     document.getElementById('description').textContent = rowData.descr_objetivo_ou_habilidade || 'N/A';
     document.getElementById('skill').textContent = rowData.habilidade_superior || 'N/A';
     document.getElementById('explanation').textContent = rowData.explicacao || 'N/A';
     document.getElementById('examples').textContent = rowData.exemplos || 'N/A';
     document.getElementById('year').textContent = rowData.ano || 'N/A';
     
-    // Gerenciar exibição da imagem existente
     const existingImageSection = document.getElementById('existingImageSection');
     const existingImage = document.getElementById('existingImage');
-    const existingImageLink = document.getElementById('existingImageLink');
+    const noCurrentImage = document.getElementById('noCurrentImage');
     const existingUrlWarning = document.getElementById('existingUrlWarning');
     
     if (rowData.img_url_1) {
-        // Mostrar imagem existente
         if (existingImageSection) {
             existingImageSection.style.display = 'block';
+        }
+        if (noCurrentImage) {
+            noCurrentImage.style.display = 'none';
         }
         
         if (existingImage) {
             existingImage.src = rowData.img_url_1;
+            existingImage.style.display = 'block';
             existingImage.onerror = function() {
                 // Se a imagem não carregar, mostrar placeholder
                 this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbSBuw6NvIGVuY29udHJhZGE8L3RleHQ+PC9zdmc+';
@@ -110,48 +95,40 @@ function updateInterface(rowData) {
             };
         }
         
-        if (existingImageLink) {
-            existingImageLink.href = rowData.img_url_1;
-        }
-        
-        // Mostrar aviso
         if (existingUrlWarning) {
             existingUrlWarning.style.display = 'block';
         }
         
-        // Atualizar texto do botão
-        const generateBtn = document.getElementById('generateBtn1');
-        if (generateBtn) {
-            generateBtn.textContent = '🎨 Gerar Nova Imagem';
-        }
+        const approveCurrentBtn = document.getElementById('approveCurrentBtn');
+        const rejectCurrentBtn = document.getElementById('rejectCurrentBtn');
+        if (approveCurrentBtn) approveCurrentBtn.disabled = false;
+        if (rejectCurrentBtn) rejectCurrentBtn.disabled = false;
         
     } else {
-        // Ocultar imagem existente
         if (existingImageSection) {
             existingImageSection.style.display = 'none';
+        }
+        if (noCurrentImage) {
+            noCurrentImage.style.display = 'flex';
         }
         
         if (existingUrlWarning) {
             existingUrlWarning.style.display = 'none';
         }
         
-        // Restaurar texto do botão
-        const generateBtn = document.getElementById('generateBtn1');
-        if (generateBtn) {
-            generateBtn.textContent = '🎨 Gerar Imagem';
-        }
+        const approveCurrentBtn = document.getElementById('approveCurrentBtn');
+        const rejectCurrentBtn = document.getElementById('rejectCurrentBtn');
+        if (approveCurrentBtn) approveCurrentBtn.disabled = true;
+        if (rejectCurrentBtn) rejectCurrentBtn.disabled = true;
     }
     
-    // Resetar estado das imagens
     resetImages();
     
-    // Mostrar interface
     document.getElementById('navigation').style.display = 'flex';
-    document.getElementById('imageSection').style.display = 'grid';
+    document.getElementById('imageSection').style.display = 'block';
     document.getElementById('rowInfo').style.display = 'block';
 }
 
-// Função para atualizar navegação (corrigida para usar os IDs corretos do HTML)
 function updateNavigation() {
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
@@ -176,7 +153,6 @@ function updateNavigation() {
     }
 }
 
-// Função para ir para linha anterior
 function previousRow() {
     if (currentRowIndex > 0) {
         currentRowIndex--;
@@ -187,7 +163,6 @@ function previousRow() {
     }
 }
 
-// Função para ir para próxima linha (corrigida - removida a duplicata)
 function nextRow() {
     if (currentRowIndex < totalRows - 1) {
         currentRowIndex++;
@@ -199,7 +174,6 @@ function nextRow() {
 }
 
 function resetImages() {
-    // Reset image 1
     const imagePreview1 = document.getElementById('imagePreview1');
     const imageStatus1 = document.getElementById('imageStatus1');
     const generateBtn1 = document.getElementById('generateBtn1');
@@ -220,7 +194,6 @@ function resetImages() {
     if (approveBtn1) approveBtn1.disabled = true;
     if (rejectBtn1) rejectBtn1.disabled = true;
     
-    // Reset app state
     appState.generatedImage = null;
 }
 
@@ -246,7 +219,6 @@ async function generateImage(imageNumber) {
     try {
         const rowData = sheetData[currentRowIndex];
         
-        // Verifica se há prompt personalizado (com verificação defensiva)
         const customPrompt = customPromptField ? customPromptField.value.trim() : '';
         
         const requestBody = {
@@ -254,12 +226,11 @@ async function generateImage(imageNumber) {
             imageNumber: imageNumber
         };
         
-        // Se há prompt personalizado, adiciona ao request
         if (customPrompt) {
             requestBody.customPrompt = customPrompt;
         }
         
-        console.log('Enviando requisição:', requestBody); // Debug
+        console.log('Enviando requisição:', requestBody); 
         
         const response = await fetch('/api/generate-image', {
             method: 'POST',
@@ -283,15 +254,12 @@ async function generateImage(imageNumber) {
             imagePreview.style.display = 'block';
             imageStatus.textContent = customPrompt ? 'Imagem gerada com prompt personalizado!' : 'Imagem gerada com sucesso!';
             
-            // Mostrar botão de visualização em tamanho completo
             if (imagePreviewActions) {
                 imagePreviewActions.style.display = 'block';
             }
             
-            // Armazenar a URL da imagem gerada no estado da aplicação
             appState.generatedImage = result.imageUrl;
             
-            // Habilitar botões de aprovação/reprovação
             const approveBtn = document.getElementById(`approveBtn${imageNumber}`);
             const rejectBtn = document.getElementById(`rejectBtn${imageNumber}`);
             if (approveBtn) approveBtn.disabled = false;
@@ -331,13 +299,11 @@ function setupImageButtons(row) {
         approveBtn.disabled = true;
         rejectBtn.disabled = true;
     } else if (appState.quotaExceeded) {
-        // Se quota foi excedida, manter erro visível e botão desabilitado
         document.getElementById('quotaError').style.display = 'block';
         generateBtn.disabled = true;
     }
 }
 
-// Função para aprovar imagem
 async function approveImage(imageNumber) {
     if (!appState.generatedImage) {
         showStatus('❌ Nenhuma imagem foi gerada para aprovar', 'error');
@@ -349,7 +315,6 @@ async function approveImage(imageNumber) {
     const imageStatus = document.getElementById(`imageStatus${imageNumber}`);
 
     try {
-        // Desabilitar botões durante o processo
         approveBtn.disabled = true;
         rejectBtn.disabled = true;
         imageStatus.textContent = '💾 Salvando imagem aprovada...';
@@ -382,7 +347,6 @@ async function approveImage(imageNumber) {
         
         showStatus('✅ Imagem aprovada e salva na planilha!', 'success');
         
-        // Carregar próxima linha após 2 segundos
         setTimeout(() => {
             loadSheetData();
         }, 2000);
@@ -392,7 +356,6 @@ async function approveImage(imageNumber) {
         imageStatus.textContent = '❌ Erro ao salvar imagem';
         imageStatus.className = 'image-status error';
         
-        // Reabilitar botões em caso de erro
         approveBtn.disabled = false;
         rejectBtn.disabled = false;
         
@@ -400,7 +363,6 @@ async function approveImage(imageNumber) {
     }
 }
 
-// Função para rejeitar imagem
 function rejectImage(imageNumber) {
     if (!appState.generatedImage) {
         showStatus('❌ Nenhuma imagem foi gerada para rejeitar', 'error');
@@ -413,14 +375,12 @@ function rejectImage(imageNumber) {
     const approveBtn = document.querySelector(`[onclick="approveImage(${imageNumber})"]`);
     const rejectBtn = document.querySelector(`[onclick="rejectImage(${imageNumber})"]`);
 
-    // Resetar estado da imagem
     appState.generatedImage = null;
     imagePreview.style.display = 'none';
     imagePreview.src = '';
     imageStatus.textContent = 'Imagem rejeitada. Gere uma nova.';
     imageStatus.className = 'image-status';
 
-    // Reabilitar botão de gerar e desabilitar botões de ação
     generateBtn.disabled = false;
     approveBtn.disabled = true;
     rejectBtn.disabled = true;
@@ -428,12 +388,9 @@ function rejectImage(imageNumber) {
     showStatus('❌ Imagem rejeitada. Você pode gerar uma nova imagem.', 'info');
 }
 
-// Inicialização quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
-    // Carregar dados automaticamente
     loadSheetData();
     
-    // Adicionar estilos CSS para os estados de imagem
     const style = document.createElement('style');
     style.textContent = `
         .image-status.loading {

@@ -1,67 +1,63 @@
-/**
- * Retorna características visuais apropriadas para a faixa etária baseada no campo 'ano'.
- */
 function getAgeAppropriateStyle(ano) {
     try {
         const anoNum = ano ? parseInt(ano.toString().replace('-', '')) : 1;
         
-        if (anoNum === 0) { // Educação Infantil (3-5 anos)
+        if (anoNum === 0) { 
             return {
-                age_group: 'early childhood education (3-5 years)',
-                style: 'Educational scene showing teacher with young children in classroom setting',
-                complexity: 'Simple activities like circle time, basic motor skills, sensory play',
-                characters: 'Teacher guiding small children in age-appropriate learning activities',
-                elements: 'Classroom materials for early childhood: blocks, simple puzzles, movement activities, basic counting with objects'
+                age_group: 'educação infantil (3-5 anos)',
+                style: 'Cena educacional mostrando professor com crianças pequenas em ambiente de sala de aula',
+                complexity: 'Atividades simples como roda de conversa, habilidades motoras básicas, brincadeiras sensoriais',
+                characters: 'Professor orientando crianças pequenas em atividades de aprendizagem adequadas à idade',
+                elements: 'Materiais de sala de aula para educação infantil: blocos, quebra-cabeças simples, atividades de movimento, contagem básica com objetos'
             };
-        } else if (anoNum === 15) { // 1º-5º ano (6-10 anos)
+        } else if (anoNum === 15) {
             return {
-                age_group: 'elementary school (6-10 years)',
-                style: 'Teacher guiding students through foundational learning activities',
-                complexity: 'Progressive learning from basic to intermediate concepts, hands-on activities',
-                characters: 'Teacher with elementary students aged 6-10 engaged in diverse learning experiences',
-                elements: 'Mixed classroom environment with manipulatives, visual aids, interactive technology, group work spaces, and age-appropriate learning materials'
+                age_group: 'ensino fundamental I (6-10 anos)',
+                style: 'Professor orientando estudantes através de atividades de aprendizagem fundamentais',
+                complexity: 'Aprendizagem progressiva de conceitos básicos a intermediários, atividades práticas',
+                characters: 'Professor com estudantes do ensino fundamental de 6-10 anos engajados em experiências diversas de aprendizagem',
+                elements: 'Ambiente de sala de aula misto com materiais manipuláveis, recursos visuais, tecnologia interativa, espaços para trabalho em grupo e materiais de aprendizagem adequados à idade'
             };
-        } else if (anoNum >= 1 && anoNum <= 2) { // 1º-2º ano (6-7 anos)
+        } else if (anoNum >= 1 && anoNum <= 2) { 
             return {
-                age_group: 'early elementary (6-7 years)',
-                style: 'Teacher demonstrating foundational concepts to young students',
-                complexity: 'Basic literacy and numeracy activities, simple true/false exercises',
-                characters: 'Teacher with 6-7 year old students engaged in learning activities',
-                elements: 'Classroom scenes with alphabet cards, number lines, students raising green/red cards for true/false, basic reading activities'
+                age_group: 'anos iniciais do fundamental (6-7 anos)',
+                style: 'Professor demonstrando conceitos fundamentais para estudantes jovens',
+                complexity: 'Atividades básicas de alfabetização e numeramento, exercícios simples de verdadeiro/falso',
+                characters: 'Professor com estudantes de 6-7 anos engajados em atividades de aprendizagem',
+                elements: 'Cenas de sala de aula com cartões do alfabeto, linha numérica, estudantes levantando cartões verdes/vermelhos para verdadeiro/falso, atividades básicas de leitura'
             };
-        } else if (anoNum >= 3 && anoNum <= 5) { // 3º-5º ano (8-10 anos)
+        } else if (anoNum >= 3 && anoNum <= 5) { 
             return {
-                age_group: 'middle elementary (8-10 years)',
-                style: 'Teacher facilitating more complex learning activities with elementary students',
-                complexity: 'Problem-solving activities, group work, basic research and presentation skills',
-                characters: 'Teacher and 8-10 year old students working on collaborative projects',
-                elements: 'Classroom with computers, students presenting projects, group discussions, hands-on experiments, mathematical problem solving'
+                age_group: 'anos intermediários do fundamental (8-10 anos)',
+                style: 'Professor facilitando atividades de aprendizagem mais complexas com estudantes do ensino fundamental',
+                complexity: 'Atividades de resolução de problemas, trabalho em grupo, habilidades básicas de pesquisa e apresentação',
+                characters: 'Professor e estudantes de 8-10 anos trabalhando em projetos colaborativos',
+                elements: 'Sala de aula com computadores, estudantes apresentando projetos, discussões em grupo, experimentos práticos, resolução de problemas matemáticos'
             };
-        } else if (anoNum === 69) { // 6º-9º ano (11-14 anos)
+        } else if (anoNum === 69) { 
             return {
-                age_group: 'middle school (11-14 years)',
-                style: 'Teacher engaging adolescent students in advanced learning activities',
-                complexity: 'Abstract thinking, critical analysis, independent research, complex problem-solving',
-                characters: 'Teacher with teenage students (11-14 years) in sophisticated learning environments',
-                elements: 'Advanced classroom technology, students debating, scientific experiments, coding activities, collaborative research projects'
+                age_group: 'ensino fundamental II (11-14 anos)',
+                style: 'Professor engajando estudantes adolescentes em atividades avançadas de aprendizagem',
+                complexity: 'Pensamento abstrato, análise crítica, pesquisa independente, resolução de problemas complexos',
+                characters: 'Professor com estudantes adolescentes (11-14 anos) em ambientes sofisticados de aprendizagem',
+                elements: 'Tecnologia avançada de sala de aula, estudantes debatendo, experimentos científicos, atividades de programação, projetos de pesquisa colaborativa'
             };
-        } else { // Outros anos ou padrão
+        } else { 
             return {
-                age_group: 'general elementary education',
-                style: 'Teacher demonstrating educational concepts in classroom setting',
-                complexity: 'Adaptable teaching activities suitable for various elementary grades',
-                characters: 'Teacher and elementary students engaged in learning process',
-                elements: 'Versatile classroom materials, interactive learning activities, student participation and engagement'
+                age_group: 'educação fundamental geral',
+                style: 'Professor demonstrando conceitos educacionais em ambiente de sala de aula',
+                complexity: 'Atividades de ensino adaptáveis adequadas para várias séries do ensino fundamental',
+                characters: 'Professor e estudantes do ensino fundamental engajados no processo de aprendizagem',
+                elements: 'Materiais versáteis de sala de aula, atividades interativas de aprendizagem, participação e engajamento dos estudantes'
             };
         }
     } catch (error) {
-        // Fallback para erro
         return {
-            age_group: 'general elementary education',
-            style: 'Teacher demonstrating educational concepts in classroom setting',
-            complexity: 'Adaptable teaching activities suitable for various elementary grades',
-            characters: 'Teacher and elementary students engaged in learning process',
-            elements: 'Versatile classroom materials, interactive learning activities, student participation and engagement'
+            age_group: 'educação fundamental geral',
+            style: 'Professor demonstrando conceitos educacionais em ambiente de sala de aula',
+            complexity: 'Atividades de ensino adaptáveis adequadas para várias séries do ensino fundamental',
+            characters: 'Professor e estudantes do ensino fundamental engajados no processo de aprendizagem',
+            elements: 'Materiais versáteis de sala de aula, atividades interativas de aprendizagem, participação e engajamento dos estudantes'
         };
     }
 }

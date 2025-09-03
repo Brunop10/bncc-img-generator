@@ -2,16 +2,11 @@ const config = require('../config/environment');
 const { buildEducationalPrompt } = require('../utils/promptBuilder');
 const cloudinaryService = require('./cloudinaryService');
 
-/**
- * Gera imagem usando a API do Google Gemini
- */
 async function generateImageWithGemini(rowData, customPrompt = null) {
     try {
         if (!config.GEMINI.API_KEY) {
             throw new Error('GEMINI_API_KEY não encontrada nas variáveis de ambiente');
         }
-
-        // Usa prompt personalizado se fornecido, senão usa o prompt padrão
         const prompt = customPrompt || buildEducationalPrompt(rowData);
         
         console.log(`Gerando imagem com prompt: ${customPrompt ? 'personalizado' : 'automático'}`);
@@ -44,7 +39,6 @@ async function generateImageWithGemini(rowData, customPrompt = null) {
         if (!response.ok) {
             const errorText = await response.text();
             
-            // Verificar se é erro de quota
             if (response.status === 429 || errorText.includes('quota') || errorText.includes('QUOTA') || 
                 errorText.includes('Resource has been exhausted') || errorText.includes('daily limit')) {
                 throw new Error('USO DIÁRIO DA GERAÇÃO DE IA EXPIRADO TENTE NOVAMENTE AMANHÃ');
@@ -60,7 +54,6 @@ async function generateImageWithGemini(rowData, customPrompt = null) {
             if (candidate.content && candidate.content.parts) {
                 for (const part of candidate.content.parts) {
                     if (part.inlineData && part.inlineData.data) {
-                        // Upload para Cloudinary
                         console.log('Fazendo upload para Cloudinary...');
                         const cloudinaryResult = await cloudinaryService.uploadBase64Image(part.inlineData.data);
 

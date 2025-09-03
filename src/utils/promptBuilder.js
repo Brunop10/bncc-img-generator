@@ -1,48 +1,46 @@
 const { getAgeAppropriateStyle } = require('./ageStyleMapper');
 
-/**
- * Constrói o prompt educacional baseado nos dados da linha e faixa etária
- */
 function buildEducationalPrompt(rowData) {
     const ageStyle = getAgeAppropriateStyle(rowData.ano);
     
     return `
-IMAGE GENERATION RULES - MANDATORY:
-1. ABSOLUTELY NO TEXT - Zero words, letters, numbers, labels, captions
-2. PURE VISUAL ILLUSTRATION ONLY
-3. IF ANY TEXT APPEARS = COMPLETE FAILURE
+REGRAS DE GERAÇÃO DE IMAGEM - OBRIGATÓRIAS:
+1. ABSOLUTAMENTE NENHUM TEXTO - Zero palavras, letras, números, rótulos, legendas
+2. APENAS ILUSTRAÇÃO VISUAL PURA
+3. SE QUALQUER TEXTO APARECER = FALHA COMPLETA
+4. NÃO GERAR PESSOAS REAIS, APENAS FIGURAS OU DESENHOS
 
-CREATE: Visual-only educational illustration
-AGE: ${ageStyle.age_group}
-STYLE: ${ageStyle.style}
+CRIAR: Ilustração educacional apenas visual
+IDADE: ${ageStyle.age_group}
+ESTILO: ${ageStyle.style}
 
-CONCEPT TO ILLUSTRATE VISUALLY:
+CONCEITOS PARA AJUDAREM NA ILUSTRAÇÃO:
 ${rowData.descr_objetivo_ou_habilidade}
 ${rowData.habilidade_superior ? rowData.habilidade_superior : ''}
 ${rowData.explicacao ? rowData.explicacao : ''}
 ${rowData.exemplos ? rowData.exemplos : ''}
 
-VISUAL APPROACH:
-- Show concept through objects, actions, scenes
-- Use symbols, colors, shapes to represent ideas, 
-- If necessary to use persons: ${ageStyle.characters}
-- Demonstrate through visual examples
-- Make concept recognizable without reading with ${ageStyle.complexity}
+ABORDAGEM VISUAL:
+- Mostrar conceito através de objetos, ações, cenas
+- Usar símbolos, cores, formas para representar ideias
+- Se necessário usar pessoas: ${ageStyle.characters}
+- Demonstrar através de exemplos visuais
+- Tornar conceito reconhecível sem leitura com ${ageStyle.complexity}
 - ${ageStyle.elements}
 
-FORBIDDEN:
-- Any readable text
-- Labels or captions
-- Written explanations
-- Numbers or letters
-- Speech bubbles with text
-- Signs with words
+PROIBIDO:
+- Qualquer texto legível
+- Rótulos ou legendas
+- Explicações escritas
+- Números ou letras
+- Balões de fala com texto
+- Placas com palavras
 
-REQUIRED:
-- Pure illustration
-- Clear visual concept
-- Educational value through imagery only
-- Teacher-friendly recognition
+OBRIGATÓRIO:
+- Ilustração pura
+- Conceito visual claro
+- Valor educacional apenas através de imagens
+- Reconhecimento amigável ao professor
 `;
 }
 

@@ -2,9 +2,6 @@ const geminiService = require('../services/geminiService');
 const googleSheetsService = require('../services/googleSheetsService');
 const cloudinaryService = require('../services/cloudinaryService');
 
-/**
- * Gera imagem usando API Gemini
- */
 async function generateImage(req, res) {
     try {
         const { rowData, imageNumber, customPrompt } = req.body;
@@ -37,21 +34,15 @@ async function generateImage(req, res) {
     }
 }
 
-/**
- * Carrega dados da planilha
- */
 async function loadSheetData(req, res) {
     try {
-        // Carregar todos os dados da planilha
         const allDataResult = await googleSheetsService.loadSheetData();
         if (!allDataResult.success) {
             return res.json(allDataResult);
         }
 
-        // Encontrar a primeira linha sem imagem
         const firstRowWithoutImageResult = await googleSheetsService.getFirstRowWithoutImage();
-        
-        // Determinar o índice da primeira linha sem imagem
+
         let currentIndex = 0;
         if (firstRowWithoutImageResult.success && firstRowWithoutImageResult.data) {
             currentIndex = allDataResult.data.findIndex(row => 
@@ -76,9 +67,6 @@ async function loadSheetData(req, res) {
     }
 }
 
-/**
- * Aprova imagem e salva no Cloudinary
- */
 async function approveImage(req, res) {
     try {
         const { imageUrl, rowIndex, imageNumber } = req.body;
@@ -90,7 +78,6 @@ async function approveImage(req, res) {
             });
         }
         
-        // Salva no Cloudinary
         const cloudinaryResult = await cloudinaryService.saveImageByUrl(imageUrl);
         
         if (!cloudinaryResult.success) {
@@ -100,7 +87,6 @@ async function approveImage(req, res) {
             });
         }
         
-        // Atualiza planilha
         const sheetsResult = await googleSheetsService.updateGoogleSheets(
             process.env.GOOGLE_SHEET_ID,
             rowIndex,

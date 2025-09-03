@@ -4,7 +4,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Arquivos de ambiente (IMPORTANTE - não subir chaves)
+# Arquivos de ambiente 
 .env
 credentials.json
 
@@ -35,7 +35,7 @@ Thumbs.db
 *.swp
 *.swo
 
-# Python (para a pasta script-python)
+# Python 
 __pycache__/
 *.py[cod]
 *$py.class

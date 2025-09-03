@@ -1,9 +1,6 @@
 const { google } = require('googleapis');
 const config = require('../config/environment');
 
-/**
- * Obtém cliente autenticado do Google Sheets
- */
 async function getGoogleSheetsClient() {
     const auth = new google.auth.GoogleAuth({
         credentials: {
@@ -17,9 +14,6 @@ async function getGoogleSheetsClient() {
     return google.sheets({ version: 'v4', auth });
 }
 
-/**
- * Carrega dados da planilha usando nomes das colunas
- */
 async function loadSheetData() {
     try {
         const sheets = await getGoogleSheetsClient();
@@ -33,11 +27,9 @@ async function loadSheetData() {
             return { success: false, message: 'Nenhum dado encontrado na planilha' };
         }
         
-        // Primeira linha contém os cabeçalhos
         const headers = rows[0];
         const data = [];
         
-        // Criar mapeamento de índices das colunas baseado nos nomes
         const getColumnIndex = (columnName) => {
             const index = headers.findIndex(header => 
                 header.toLowerCase().trim() === columnName.toLowerCase().trim()
@@ -45,7 +37,6 @@ async function loadSheetData() {
             return index !== -1 ? index : null;
         };
         
-        // Mapear índices das colunas
         const columnIndices = {
             ano: getColumnIndex('ano'),
             descr_objetivo_ou_habilidade: getColumnIndex('descr_objetivo_ou_habilidade'),
@@ -55,7 +46,6 @@ async function loadSheetData() {
             img_url_1: getColumnIndex('img_url_1'),
         };
         
-        // Processar dados das linhas
         for (let i = 1; i < rows.length; i++) {
             const row = rows[i];
             const rowData = {
@@ -77,9 +67,6 @@ async function loadSheetData() {
     }
 }
 
-/**
- * Encontra a primeira linha sem imagem
- */
 async function getFirstRowWithoutImage() {
     try {
         const result = await loadSheetData();
@@ -102,15 +89,12 @@ async function getFirstRowWithoutImage() {
     }
 }
 
-/**
- * Obtém índice da coluna pelo nome
- */
 async function getColumnIndexByName(columnName) {
     try {
         const sheets = await getGoogleSheetsClient();
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: config.GOOGLE_SHEETS.SHEET_ID,
-            range: `${config.GOOGLE_SHEETS.RANGE.split('!')[0]}!1:1` // Apenas primeira linha (cabeçalhos)
+            range: `${config.GOOGLE_SHEETS.RANGE.split('!')[0]}!1:1` 
         });
         
         const headers = response.data.values[0];
@@ -118,16 +102,13 @@ async function getColumnIndexByName(columnName) {
             header.toLowerCase().trim() === columnName.toLowerCase().trim()
         );
         
-        return index !== -1 ? index + 1 : null; // +1 porque Google Sheets usa índice baseado em 1
+        return index !== -1 ? index + 1 : null; 
     } catch (error) {
         console.error('Erro ao obter índice da coluna:', error);
         return null;
     }
 }
 
-/**
- * Atualiza URL da imagem na planilha usando nome da coluna
- */
 async function updateSheetUrl(rowIndex, columnName, url) {
     try {
         const columnIndex = await getColumnIndexByName(columnName);
@@ -136,7 +117,7 @@ async function updateSheetUrl(rowIndex, columnName, url) {
         }
         
         const sheets = await getGoogleSheetsClient();
-        const columnLetter = String.fromCharCode(64 + columnIndex); // A=1, B=2, etc.
+        const columnLetter = String.fromCharCode(64 + columnIndex); 
         const range = `${config.GOOGLE_SHEETS.RANGE.split('!')[0]}!${columnLetter}${rowIndex}`;
         
         await sheets.spreadsheets.values.update({
@@ -155,9 +136,6 @@ async function updateSheetUrl(rowIndex, columnName, url) {
     }
 }
 
-/**
- * Atualiza imagem na planilha do Google Sheets usando nomes das colunas
- */
 async function updateGoogleSheets(sheetId, rowIndex, imageNumber, imageUrl) {
     try {
         const columnMap = {
