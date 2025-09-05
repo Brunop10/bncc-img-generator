@@ -34,7 +34,7 @@ function getAgeAppropriateStyle(ano) {
                 characters: 'Professor e estudantes de 8-10 anos trabalhando em projetos colaborativos',
                 elements: 'Sala de aula com computadores, estudantes apresentando projetos, discussões em grupo, experimentos práticos, resolução de problemas matemáticos'
             };
-        } else if (anoNum === 69) { 
+        } else if (anoNum === 69 || (anoNum >= 6 && anoNum <=9)) { 
             return {
                 age_group: 'ensino fundamental II (11-14 anos)',
                 style: 'Professor engajando estudantes adolescentes em atividades avançadas de aprendizagem',

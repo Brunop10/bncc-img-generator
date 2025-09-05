@@ -43,7 +43,7 @@
             <div id="navigation" class="navigation" style="display: none;">
             </div>
             
-            <div id="imageSection" class="image-section" style="display: none; max-width: 1200px; margin: 0 auto; padding: 30px; width: 95%;">
+            <div id="imageSection" class="image-section" style="display: none; max-width: 1400px; margin: 0 auto; padding: 20px; width: 98%;">
                 <div id="quotaError" class="quota-error" style="display: none;">
                     <div class="error-message">
                         ⚠️ USO DIÁRIO DA GERAÇÃO DE IA EXPIRADO - TENTE NOVAMENTE AMANHÃ
@@ -54,6 +54,9 @@
                     <div class="left-column">
                         <div class="current-image-section">
                             <h4>📷 Imagem Atual</h4>
+                            <div id="existingUrlWarning" class="existing-url-warning" style="display: none;">
+                                ⚠️ <strong>Atenção:</strong> Esta atividade já possui uma imagem salva. Gerar uma nova imagem irá sobrescrever a existente se aprovada.
+                            </div>
                             <div class="image-container" id="currentImageContainer">
                                 <div id="noCurrentImage" class="no-image-message">
                                     <div class="no-image-icon">🖼️</div>
@@ -63,10 +66,6 @@
                                 <div id="existingImageSection" style="display: none;">
                                     <img id="existingImage" src="" alt="Imagem atual" class="clickable-image" onclick="openImagePopup(this.src, 'Imagem Atual')">
                                 </div>
-                            </div>
-                            
-                            <div id="existingUrlWarning" class="existing-url-warning" style="display: none;">
-                                ⚠️ <strong>Atenção:</strong> Esta linha já possui uma imagem salva. Gerar uma nova imagem irá sobrescrever a existente se aprovada.
                             </div>
                         </div>
                     </div>
