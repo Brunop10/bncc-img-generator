@@ -642,6 +642,32 @@ body {
     color: #6c757d;
 }
 
+.goto-line {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.goto-line input {
+    width: 80px;
+    padding: 6px 8px;
+    font-size: 0.85em;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.goto-line input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.goto-line input:invalid {
+    border-color: #dc3545;
+}
+
 .row-info p {
     margin: 8px 0;
     line-height: 1.5;

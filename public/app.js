@@ -55,7 +55,7 @@ async function loadSheetData() {
         
         updateInterface(sheetData[currentRowIndex]);
         updateNavigation();
-        showStatus(`✅ Dados carregados! Linha ${currentRowIndex + 1} de ${totalRows} (primeira sem imagem)`, 'success');
+        showStatus(`✅ Dados carregados! Linha ${currentRowIndex + 1} de ${totalRows}`, 'success');
         
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
@@ -133,6 +133,7 @@ function updateNavigation() {
     const currentRowSpan = document.getElementById('currentRow');
     const totalRowsSpan = document.getElementById('totalRows');
     const progressFill = document.getElementById('progressFill');
+    const gotoLineInput = document.getElementById('gotoLineInput');
     
     if (prevBtn) prevBtn.disabled = (currentRowIndex <= 0);
     if (nextBtn) nextBtn.disabled = (currentRowIndex >= totalRows - 1);
@@ -145,8 +146,13 @@ function updateNavigation() {
         totalRowsSpan.textContent = totalRows;
     }
     
-    if (progressFill) {
-        const progress = totalRows > 0 ? ((currentRowIndex + 1) / totalRows) * 100 : 0;
+    if (gotoLineInput) {
+        gotoLineInput.max = totalRows;
+        gotoLineInput.placeholder = `1-${totalRows}`;
+    }
+
+    if (progressFill && totalRows > 0) {
+        const progress = ((currentRowIndex + 1) / totalRows) * 100;
         progressFill.style.width = `${progress}%`;
     }
 }
@@ -169,6 +175,31 @@ function nextRow() {
     } else {
         showStatus('📄 Você já está na última linha', 'info');
     }
+}
+
+function gotoLine() {
+    const input = document.getElementById('gotoLineInput');
+    const lineNumber = parseInt(input.value);
+    
+    if (!lineNumber || lineNumber < 1 || lineNumber > totalRows) {
+        showStatus(`❌ Por favor, digite um número válido entre 1 e ${totalRows}`, 'error');
+        input.focus();
+        return;
+    }
+    
+    const newIndex = lineNumber - 1;
+    
+    if (newIndex === currentRowIndex) {
+        showStatus(`ℹ️ Você já está na linha ${lineNumber}`, 'info');
+        return;
+    }
+    
+    currentRowIndex = newIndex;
+    updateInterface(sheetData[currentRowIndex]);
+    updateNavigation();
+    showStatus(`✅ Navegado para linha ${lineNumber}`, 'success');
+    
+    input.value = '';
 }
 
 function resetImages() {
@@ -365,8 +396,16 @@ async function approveImage(imageNumber) {
         showStatus('✅ Imagem aprovada e salva na planilha!', 'success');
         
         setTimeout(() => {
-            loadSheetData();
-        }, 2000);
+            if (currentRowIndex < totalRows - 1) {
+                currentRowIndex++;
+                updateInterface(sheetData[currentRowIndex]);
+                updateNavigation();
+                showStatus(`✅ Imagem aprovada! Navegando para linha ${currentRowIndex + 1}`, 'success');
+            } else {
+                loadSheetData();
+                showStatus('✅ Imagem aprovada! Você está na última linha disponível', 'success');
+            }
+        }, 1500);
 
     } catch (error) {
         console.error('Erro ao aprovar imagem:', error);

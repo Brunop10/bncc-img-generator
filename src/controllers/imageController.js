@@ -41,15 +41,7 @@ async function loadSheetData(req, res) {
             return res.json(allDataResult);
         }
 
-        const firstRowWithoutImageResult = await googleSheetsService.getFirstRowWithoutImage();
-
         let currentIndex = 0;
-        if (firstRowWithoutImageResult.success && firstRowWithoutImageResult.data) {
-            currentIndex = allDataResult.data.findIndex(row => 
-                row.rowIndex === firstRowWithoutImageResult.data.rowIndex
-            );
-            if (currentIndex === -1) currentIndex = 0;
-        }
 
         res.json({
             success: true,
