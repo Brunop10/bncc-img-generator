@@ -14,33 +14,15 @@ CRIAR: Ilustração educacional apenas visual
 IDADE: ${ageStyle.age_group}
 ESTILO: ${ageStyle.style}
 
-CONCEITOS PARA AJUDAREM NA ILUSTRAÇÃO:
+CONCEITOS PARA AJUDAR NA ILUSTRAÇÃO:
 ${rowData.descr_objetivo_ou_habilidade}
 ${rowData.habilidade_superior ? rowData.habilidade_superior : ''}
 ${rowData.explicacao ? rowData.explicacao : ''}
 ${rowData.exemplos ? rowData.exemplos : ''}
 
 ABORDAGEM VISUAL:
-- Mostrar conceito através de objetos, ações, cenas
-- Usar símbolos, cores, formas para representar ideias
 - Se necessário usar pessoas: ${ageStyle.characters}
-- Demonstrar através de exemplos visuais
-- Tornar conceito reconhecível sem leitura com ${ageStyle.complexity}
-- ${ageStyle.elements}
-
-PROIBIDO:
-- Qualquer texto legível
-- Rótulos ou legendas
-- Explicações escritas
-- Números ou letras
-- Balões de fala com texto
-- Placas com palavras
-
-OBRIGATÓRIO:
-- Ilustração pura
-- Conceito visual claro
-- Valor educacional apenas através de imagens
-- Reconhecimento amigável ao professor
+- Mostrar conceito através de objetos, ações, cenas ${ageStyle.elements}
 `;
 }
 

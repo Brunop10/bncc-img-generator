@@ -5,7 +5,8 @@ let totalRows = 0;
 let appState = {
     currentRowData: null,
     totalPending: 0,
-    generatedImage: null,
+    imageHistory: [], 
+    currentImageIndex: -1, 
     quotaExceeded: false
 };
 
@@ -64,6 +65,8 @@ async function loadSheetData() {
 }
 
 function updateInterface(rowData) {
+    appState.currentRowData = rowData;
+    
     document.getElementById('description').textContent = rowData.descr_objetivo_ou_habilidade || 'N/A';
     document.getElementById('skill').textContent = rowData.habilidade_superior || 'N/A';
     document.getElementById('explanation').textContent = rowData.explicacao || 'N/A';
@@ -203,128 +206,150 @@ function gotoLine() {
 }
 
 function resetImages() {
+    appState.imageHistory = [];
+    appState.currentImageIndex = -1;
+    
+    const navigation = document.getElementById('imageNavigation');
+    navigation.style.display = 'none';
+    
     const imagePreview1 = document.getElementById('imagePreview1');
     const imageStatus1 = document.getElementById('imageStatus1');
-    const generateBtn1 = document.getElementById('generateBtn1');
     const approveBtn1 = document.getElementById('approveBtn1');
     const rejectBtn1 = document.getElementById('rejectBtn1');
     
-    if (imagePreview1) {
-        imagePreview1.style.display = 'none';
-        imagePreview1.src = '';
+    imagePreview1.style.display = 'none';
+    imagePreview1.src = '';
+    imageStatus1.textContent = 'Nenhuma imagem gerada';
+    approveBtn1.disabled = true;
+    rejectBtn1.disabled = true;
+    
+    showStatus('🔄 Imagens resetadas', 'info');
+}
+
+function addImageToHistory(imageData) {
+    appState.imageHistory.push(imageData);
+    appState.currentImageIndex = appState.imageHistory.length - 1;
+    requestAnimationFrame(() => {
+        updateImageNavigation();
+    });
+}
+
+function displayCurrentImage() {
+    if (appState.currentImageIndex >= 0 && appState.currentImageIndex < appState.imageHistory.length) {
+        const currentImage = appState.imageHistory[appState.currentImageIndex];
+        const imagePreview = document.getElementById('imagePreview1');
+        const imageStatus = document.getElementById('imageStatus1');
+        const approveBtn = document.getElementById('approveBtn1');
+        const rejectBtn = document.getElementById('rejectBtn1');
+        
+        requestAnimationFrame(() => {
+            imagePreview.src = currentImage.url;
+            imagePreview.style.display = 'block';
+            
+            if (currentImage.approved) {
+                imageStatus.textContent = currentImage.status || '✅ Imagem aprovada';
+                imageStatus.className = 'image-status-external success';
+                approveBtn.disabled = true;
+                rejectBtn.disabled = false; 
+            } else {
+                imageStatus.textContent = currentImage.status || 'Imagem gerada';
+                imageStatus.className = 'image-status-external';
+                approveBtn.disabled = false;
+                rejectBtn.disabled = false;
+            }
+        });
     }
+}
+
+function updateImageNavigation() {
+    const navigation = document.getElementById('imageNavigation');
+    const positionSpan = document.getElementById('imagePosition');
+    const prevBtn = document.getElementById('prevImageBtn');
+    const nextBtn = document.getElementById('nextImageBtn');
     
-    if (imageStatus1) {
-        imageStatus1.textContent = 'Nenhuma imagem gerada';
-        imageStatus1.className = 'image-status';
+    if (appState.imageHistory.length > 0) {
+        navigation.style.display = 'block';
+        
+        const currentImage = appState.imageHistory[appState.currentImageIndex];
+        const statusIcon = currentImage.approved ? ' ✅' : '';
+        positionSpan.textContent = `Imagem ${appState.currentImageIndex + 1} de ${appState.imageHistory.length}${statusIcon}`;
+        
+        prevBtn.disabled = appState.currentImageIndex <= 0;
+        nextBtn.disabled = appState.currentImageIndex >= appState.imageHistory.length - 1;
+    } else {
+        navigation.style.display = 'none';
     }
-    
-    if (generateBtn1) generateBtn1.disabled = false;
-    if (approveBtn1) approveBtn1.disabled = true;
-    if (rejectBtn1) rejectBtn1.disabled = true;
-    
-    appState.generatedImage = null;
 }
 
 async function generateImage(imageNumber) {
-    if (currentRowIndex === -1 || !sheetData[currentRowIndex]) {
-        showStatus('Nenhuma linha selecionada para gerar imagem');
-        return;
-    }
-
     const generateBtn = document.getElementById(`generateBtn${imageNumber}`);
+    const imagePreview = document.getElementById(`imagePreview${imageNumber}`);
     const imageStatus = document.getElementById(`imageStatus${imageNumber}`);
-    const customPromptField = document.getElementById(`customPrompt${imageNumber}`);
-    const imageContainer = document.getElementById('newImageContainer');
-    
-    if (!generateBtn || !imageStatus || !imageContainer) {
-        console.error('Elementos não encontrados:', { generateBtn, imageStatus, imageContainer });
-        return;
-    }
-    
-    const loadingOverlay = document.createElement('div');
-    loadingOverlay.className = 'image-loading-overlay';
-    loadingOverlay.innerHTML = `
-        <div class="spinner"></div>
-        <div class="spinner-text">Gerando imagem...</div>
-    `;
-    
+    const approveBtn = document.getElementById(`approveBtn${imageNumber}`);
+    const rejectBtn = document.getElementById(`rejectBtn${imageNumber}`);
+
     generateBtn.disabled = true;
     generateBtn.textContent = '⏳ Gerando...';
     
-    imageContainer.appendChild(loadingOverlay);
-
-    imageStatus.textContent = '';
-    imageStatus.className = 'image-status-external';
+    approveBtn.disabled = true;
+    rejectBtn.disabled = true;
     
+    imageStatus.textContent = 'Gerando imagem...';
+    imageStatus.className = 'image-status-external loading';
+
     try {
-        const rowData = sheetData[currentRowIndex];
-        
-        const customPrompt = customPromptField ? customPromptField.value.trim() : '';
-        
-        const requestBody = {
-            rowData: rowData,
-            imageNumber: imageNumber
-        };
-        
-        if (customPrompt) {
-            requestBody.customPrompt = customPrompt;
-        }
-        
-        console.log('Enviando requisição:', requestBody); 
+        const customPrompt = document.getElementById(`customPrompt${imageNumber}`).value.trim();
         
         const response = await fetch('/api/generate-image', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify(requestBody)
+            body: JSON.stringify({
+                rowData: appState.currentRowData,
+                customPrompt: customPrompt
+            })
         });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
+
         const result = await response.json();
-        console.log('Resposta recebida:', result);
-        
-        if (result.success) {
-            const imagePreview = document.getElementById(`imagePreview${imageNumber}`);
-            const imagePreviewActions = document.getElementById('imagePreviewActions');
-            imagePreview.src = result.imageUrl;
-            imagePreview.style.display = 'block';
-            imageStatus.textContent = customPrompt ? 'Imagem gerada com prompt personalizado!' : 'Imagem gerada com sucesso!';
+
+        if (response.ok) {
+            const imageData = {
+                url: result.imageUrl,
+                prompt: result.prompt,
+                timestamp: new Date().toISOString(),
+                status: 'Imagem gerada com sucesso',
+                approved: false
+            };
+            
+            addImageToHistory(imageData);
+            
+            displayCurrentImage();
+            
+            imageStatus.textContent = 'Imagem gerada com sucesso!';
             imageStatus.className = 'image-status-external success';
-            
-            if (imagePreviewActions) {
-                imagePreviewActions.style.display = 'block';
-            }
-            
-            appState.generatedImage = result.imageUrl;
-            
-            const approveBtn = document.getElementById(`approveBtn${imageNumber}`);
-            const rejectBtn = document.getElementById(`rejectBtn${imageNumber}`);
-            if (approveBtn) approveBtn.disabled = false;
-            if (rejectBtn) rejectBtn.disabled = false;
+            showStatus('✅ Imagem gerada com sucesso!', 'success');
         } else {
-            imageStatus.textContent = `Erro: ${result.error}`;
-            imageStatus.className = 'image-status-external error';
-            if (result.error.includes('quota')) {
-                const quotaError = document.getElementById('quotaError');
-                if (quotaError) quotaError.style.display = 'block';
+            if (result.error === 'QUOTA_EXCEEDED') {
+                appState.quotaExceeded = true;
+                imageStatus.textContent = 'Cota de geração excedida';
+                imageStatus.className = 'image-status-external warning';
+                showStatus('⚠️ Cota de geração de imagens excedida. Tente novamente mais tarde.', 'warning');
+            } else {
+                imageStatus.textContent = `Erro: ${result.error}`;
+                imageStatus.className = 'image-status-external error';
+                showStatus(`❌ Erro ao gerar imagem: ${result.error}`, 'error');
             }
         }
     } catch (error) {
         console.error('Erro ao gerar imagem:', error);
-        imageStatus.textContent = `Erro ao gerar imagem: ${error.message}`;
+        imageStatus.textContent = 'Erro na comunicação com o servidor';
         imageStatus.className = 'image-status-external error';
+        showStatus('❌ Erro na comunicação com o servidor', 'error');
     } finally {
-        if (loadingOverlay && loadingOverlay.parentNode) {
-            loadingOverlay.parentNode.removeChild(loadingOverlay);
-        }
-        
+        // Reabilitar botão
         generateBtn.disabled = false;
-        generateBtn.textContent = '🎨 Gerar';
+        generateBtn.textContent = '🎨 Gerar Imagem';
     }
 }
 
@@ -353,11 +378,12 @@ function setupImageButtons(row) {
 }
 
 async function approveImage(imageNumber) {
-    if (!appState.generatedImage) {
+    if (appState.imageHistory.length === 0 || appState.currentImageIndex === -1) {
         showStatus('❌ Nenhuma imagem foi gerada para aprovar', 'error');
         return;
     }
 
+    const currentImage = appState.imageHistory[appState.currentImageIndex];
     const approveBtn = document.querySelector(`[onclick="approveImage(${imageNumber})"]`);
     const rejectBtn = document.querySelector(`[onclick="rejectImage(${imageNumber})"]`);
     const imageStatus = document.getElementById(`imageStatus${imageNumber}`);
@@ -374,7 +400,7 @@ async function approveImage(imageNumber) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                imageUrl: appState.generatedImage,
+                imageUrl: currentImage.url,
                 imageNumber: imageNumber,
                 rowIndex: sheetData[currentRowIndex].rowIndex
             })
@@ -390,22 +416,41 @@ async function approveImage(imageNumber) {
             throw new Error(result.error);
         }
 
+        sheetData[currentRowIndex].img_url_1 = currentImage.url;
+        
+        const existingImageSection = document.getElementById('existingImageSection');
+        const existingImage = document.getElementById('existingImage');
+        const noCurrentImage = document.getElementById('noCurrentImage');
+        const existingUrlWarning = document.getElementById('existingUrlWarning');
+        
+        if (existingImageSection) {
+            existingImageSection.style.display = 'block';
+        }
+        if (noCurrentImage) {
+            noCurrentImage.style.display = 'none';
+        }
+        
+        if (existingImage) {
+            existingImage.src = currentImage.url;
+            existingImage.style.display = 'block';
+        }
+        
+        if (existingUrlWarning) {
+            existingUrlWarning.style.display = 'block';
+        }
+        
+        const approveCurrentBtn = document.getElementById('approveCurrentBtn');
+        const rejectCurrentBtn = document.getElementById('rejectCurrentBtn');
+        if (approveCurrentBtn) approveCurrentBtn.disabled = false;
+        if (rejectCurrentBtn) rejectCurrentBtn.disabled = false;
+        
+        appState.imageHistory[appState.currentImageIndex].approved = true;
+        appState.imageHistory[appState.currentImageIndex].status = '✅ Imagem aprovada e salva!';
+
         imageStatus.textContent = '✅ Imagem aprovada e salva!';
         imageStatus.className = 'image-status success';
         
         showStatus('✅ Imagem aprovada e salva na planilha!', 'success');
-        
-        setTimeout(() => {
-            if (currentRowIndex < totalRows - 1) {
-                currentRowIndex++;
-                updateInterface(sheetData[currentRowIndex]);
-                updateNavigation();
-                showStatus(`✅ Imagem aprovada! Navegando para linha ${currentRowIndex + 1}`, 'success');
-            } else {
-                loadSheetData();
-                showStatus('✅ Imagem aprovada! Você está na última linha disponível', 'success');
-            }
-        }, 1500);
 
     } catch (error) {
         console.error('Erro ao aprovar imagem:', error);
@@ -420,28 +465,42 @@ async function approveImage(imageNumber) {
 }
 
 function rejectImage(imageNumber) {
-    if (!appState.generatedImage) {
+    if (appState.imageHistory.length === 0 || appState.currentImageIndex === -1) {
         showStatus('❌ Nenhuma imagem foi gerada para rejeitar', 'error');
         return;
     }
 
-    const imagePreview = document.getElementById(`imagePreview${imageNumber}`);
-    const imageStatus = document.getElementById(`imageStatus${imageNumber}`);
-    const generateBtn = document.querySelector(`[onclick="generateImage(${imageNumber})"]`);
-    const approveBtn = document.querySelector(`[onclick="approveImage(${imageNumber})"]`);
-    const rejectBtn = document.querySelector(`[onclick="rejectImage(${imageNumber})"]`);
+    appState.imageHistory.splice(appState.currentImageIndex, 1);
+    
+    if (appState.imageHistory.length === 0) {
+        appState.currentImageIndex = -1;
+        const imagePreview = document.getElementById(`imagePreview${imageNumber}`);
+        const imageStatus = document.getElementById(`imageStatus${imageNumber}`);
+        const generateBtn = document.querySelector(`[onclick="generateImage(${imageNumber})"]`);
+        const approveBtn = document.querySelector(`[onclick="approveImage(${imageNumber})"]`);
+        const rejectBtn = document.querySelector(`[onclick="rejectImage(${imageNumber})"]`);
 
-    appState.generatedImage = null;
-    imagePreview.style.display = 'none';
-    imagePreview.src = '';
-    imageStatus.textContent = 'Imagem rejeitada. Gere uma nova.';
-    imageStatus.className = 'image-status';
+        imagePreview.style.display = 'none';
+        imagePreview.src = '';
+        imageStatus.textContent = 'Imagem rejeitada e removida do histórico.';
+        imageStatus.className = 'image-status';
 
-    generateBtn.disabled = false;
-    approveBtn.disabled = true;
-    rejectBtn.disabled = true;
+        generateBtn.disabled = false;
+        approveBtn.disabled = true;
+        rejectBtn.disabled = true;
+        
+        updateImageNavigation();
+        
+    } else {
+        if (appState.currentImageIndex >= appState.imageHistory.length) {
+            appState.currentImageIndex = appState.imageHistory.length - 1;
+        }
+        
+        displayCurrentImage();
+        updateImageNavigation();
+    }
 
-    showStatus('❌ Imagem rejeitada. Você pode gerar uma nova imagem.', 'info');
+    showStatus('🗑️ Imagem rejeitada e removida do histórico', 'info');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -464,3 +523,19 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(style);
 });
+
+function showPreviousImage() {
+    if (appState.currentImageIndex > 0) {
+        appState.currentImageIndex--;
+        displayCurrentImage();
+        updateImageNavigation();
+    }
+}
+
+function showNextImage() {
+    if (appState.currentImageIndex < appState.imageHistory.length - 1) {
+        appState.currentImageIndex++;
+        displayCurrentImage();
+        updateImageNavigation();
+    }
+}

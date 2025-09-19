@@ -97,6 +97,16 @@
                                 <button class="btn btn-primary btn-generate" id="generateBtn1" onclick="generateImage(1)">🎨 Gerar Imagem</button>
                             </div>
                             
+                            <div class="image-navigation" id="imageNavigation" style="display: none;">
+                                <div class="nav-info">
+                                    <span id="imagePosition">Imagem 1 de 1</span>
+                                </div>
+                                <div class="nav-buttons">
+                                    <button class="btn btn-secondary btn-small" id="prevImageBtn" onclick="showPreviousImage()" disabled>⬅️ Anterior</button>
+                                    <button class="btn btn-secondary btn-small" id="nextImageBtn" onclick="showNextImage()" disabled>Próxima ➡️</button>
+                                </div>
+                            </div>
+
                             <div class="image-container" id="newImageContainer">
                                 <img id="imagePreview1" src="" alt="Prévia da nova imagem" class="clickable-image" onclick="openImagePopup(this.src, 'Nova Imagem Gerada')" style="display: none;">
                             </div>
